@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprende Jugando con Papá</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary:   #6c63ff; --primary2:  #a78bfa;
+            --success:   #10d982; --success2:  #34d399;
+            --error:     #f43f5e; --warning:   #f59e0b;
+            --bg:        #0f0e1a;
+            --card:      #1c1a2e; --card2:     #26233d;
+            --border:    rgba(255,255,255,0.08);
+            --text:      #f0ecff; --text2:     #9d98b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(ellipse at 20% 20%, rgba(108,99,255,0.15) 0%, transparent 60%),
+                              radial-gradient(ellipse at 80% 80%, rgba(16,217,130,0.08) 0%, transparent 60%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; user-select: none; -webkit-user-select: none; touch-action: manipulation; padding: 16px;
+        }
+
+        .screen {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 28px 24px; border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(108,99,255,0.1);
+            width: 100%; max-width: 480px; display: none;
+            animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #menu { display: block; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .header-logo { text-align: center; margin-bottom: 6px; }
+        .header-logo .emoji { font-size: 52px; line-height: 1; filter: drop-shadow(0 4px 12px rgba(108,99,255,0.5)); }
+        
+        h1 {
+            font-size: 22px; font-weight: 900; color: var(--text); text-align: center; margin: 8px 0 4px;
+            background: linear-gradient(135deg, var(--primary2), var(--success2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .subtitle { text-align: center; color: var(--text2); font-size: 13px; margin-bottom: 22px; }
+
+        .stats-bar { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .stat-chip {
+            background: var(--card2); border: 1px solid var(--border); border-radius: 50px;
+            padding: 6px 16px; font-size: 13px; font-weight: 700; color: var(--text2); display: flex; align-items: center; gap: 6px;
+        }
+        .stat-chip span { color: var(--primary2); font-size: 15px; }
+
+        .btn-menu {
+            display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px 20px; margin: 8px 0;
+            font-size: 15px; font-weight: 800; font-family: 'Nunito', sans-serif;
+            border: 1px solid var(--border); border-radius: 16px; cursor: pointer;
+            color: var(--text); transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s; background: var(--card2); text-align: left;
+        }
+        .btn-menu .icon { font-size: 28px; flex-shrink: 0; }
+        .btn-menu .label { flex: 1; }
+        .btn-menu .arrow { opacity: 0.4; font-size: 18px; }
+        .btn-menu:active { transform: scale(0.96); }
+
+        .btn-menu.reading  { border-color: rgba(108,99,255,0.4); background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(167,139,250,0.06)); }
+        .btn-menu.reading:hover { border-color: var(--primary); box-shadow: 0 0 20px rgba(108,99,255,0.25); }
+        .btn-menu.math     { border-color: rgba(245,158,11,0.4); background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(251,191,36,0.06)); }
+        .btn-menu.math:hover { border-color: var(--warning); box-shadow: 0 0 20px rgba(245,158,11,0.25); }
+        .btn-menu.sem      { border-color: rgba(167,139,250,0.4); background: linear-gradient(135deg, rgba(167,139,250,0.12), rgba(196,181,253,0.06)); }
+        .btn-menu.sem:hover { border-color: var(--primary2); box-shadow: 0 0 20px rgba(167,139,250,0.25); }
+        .btn-menu.geo      { border-color: rgba(16,217,130,0.4); background: linear-gradient(135deg, rgba(16,217,130,0.12), rgba(52,211,153,0.06)); }
+        .btn-menu.geo:hover { border-color: var(--success); box-shadow: 0 0 20px rgba(16,217,130,0.25); }
+        .btn-menu.count    { border-color: rgba(244,63,94,0.4); background: linear-gradient(135deg, rgba(244,63,94,0.12), rgba(251,113,133,0.06)); }
+        .btn-menu.count:hover { border-color: var(--error); box-shadow: 0 0 20px rgba(244,63,94,0.25); }
+
+        .btn-menu.sub { padding: 13px 18px; font-size: 14px; margin: 5px 0; }
+
+        .btn-back {
+            margin-top: 20px; width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 14px;
+            background: transparent; color: var(--text2); font-size: 15px; font-weight: 700;
+            font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-back:hover { background: var(--card2); color: var(--text); }
+        .btn-back:active { transform: scale(0.97); }
+
+        #nivel-actual { font-size: 11px; font-weight: 800; color: var(--primary2); text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 10px; }
+
+        #progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 50px; height: 10px; margin-bottom: 8px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 50px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+
+        .streak-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 2px; font-size: 13px; color: var(--text2); font-weight: 700; }
+        #streak-display { display: flex; align-items: center; gap: 5px; color: var(--warning); font-weight: 900; }
+        #streak-display .fire { font-size: 18px; }
+        #remaining-display { color: var(--text2); }
+        #remaining-val { color: var(--success); font-weight: 900; font-size: 15px; }
+
+        #display-text {
+            font-size: clamp(48px, 12vw, 90px); font-weight: 900; color: var(--text); min-height: 130px;
+            display: flex; align-items: center; justify-content: center; margin: 10px 0 16px; text-align: center; letter-spacing: 3px; line-height: 1.1; transition: color 0.2s;
+        }
+
+        #count-display { font-size: 38px; line-height: 1.4; text-align: center; min-height: 100px; display: none; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; margin-bottom: 12px; letter-spacing: 2px; }
+
+        #numpad { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+        .btn-num {
+            padding: 14px 0; font-size: 26px; font-weight: 800; font-family: 'Nunito', sans-serif;
+            border-radius: 14px; border: 1px solid var(--border); background: var(--card2); cursor: pointer;
+            color: var(--text); transition: transform 0.1s, background 0.15s, border-color 0.15s;
+        }
+        .btn-num:active { transform: scale(0.88); background: var(--primary); border-color: var(--primary); }
+        .btn-num:hover  { border-color: var(--primary2); }
+
+        #grid-opciones { display: none; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
+        .btn-opcion {
+            font-size: 52px; padding: 18px; border-radius: 18px; border: 2px solid var(--border);
+            background: var(--card2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+        }
+        .btn-opcion svg { width: 65px; height: 65px; }
+        .btn-opcion:active { transform: scale(0.9); }
+        .btn-opcion:hover  { border-color: var(--primary2); box-shadow: 0 0 15px rgba(108,99,255,0.2); }
+
+        .controls { display: flex; justify-content: space-around; margin-top: 20px; }
+        .btn-action {
+            font-size: 36px; width: 82px; height: 82px; border-radius: 50%; border: none; color: white;
+            cursor: pointer; font-family: 'Nunito', sans-serif; transition: transform 0.1s, box-shadow 0.15s;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .btn-action:active { transform: scale(0.88); }
+        .btn-correct   { background: linear-gradient(135deg, var(--success), #059669); }
+        .btn-correct:hover  { box-shadow: 0 6px 25px rgba(16,217,130,0.45); }
+        .btn-incorrect { background: linear-gradient(135deg, var(--error), #be123c); }
+        .btn-incorrect:hover { box-shadow: 0 6px 25px rgba(244,63,94,0.45); }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0) rotate(0deg); }
+            20% { transform: translateX(-14px) rotate(-2deg); }
+            40% { transform: translateX(14px) rotate(2deg); }
+            60% { transform: translateX(-10px) rotate(-1deg); }
+            80% { transform: translateX(10px) rotate(1deg); }
+        }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+        .error-shake  { animation: shake 0.45s ease-out; }
+        .success-text { color: var(--success) !important; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+        #result-screen .result-emoji { font-size: 72px; text-align: center; margin: 10px 0; filter: drop-shadow(0 4px 16px rgba(16,217,130,0.5)); }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .result-card { background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 14px; text-align: center; }
+        .result-card .val { font-size: 30px; font-weight: 900; color: var(--primary2); }
+        .result-card .lbl { font-size: 11px; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+        @media (max-width: 360px) {
+            .screen { padding: 20px 16px; border-radius: 20px; }
+            #display-text { font-size: 44px; min-height: 110px; }
+            .btn-action { width: 72px; height: 72px; font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="menu" class="screen">
+        <div class="header-logo"><div class="emoji">🚀</div></div>
+        <h1>Aprende Jugando con Papá</h1>
+        <p class="subtitle">Ecosistema de Neuro-Aprendizaje Infinito para Agustín</p>
+
+        <div class="stats-bar">
+            <div class="stat-chip">🔥 Racha <span id="menu-streak">0</span></div>
+            <div class="stat-chip">⭐ Sesiones <span id="menu-sessions">0</span></div>
+        </div>
+
+        <button class="btn-menu reading" onclick="mostrarSubMenu()">
+            <span class="icon">🔤</span>
+            <span class="label">Lectura<br><small style="font-weight:600;opacity:.6">Sílabas y Diccionario Gigante</small></span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu math" onclick="iniciar('mate')">
+            <span class="icon">🔢</span>
+            <span class="label">Matemáticas<br><small style="font-weight:600;opacity:.6">Antecesor y Sucesor</small></span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu count" onclick="iniciar('conteo')">
+            <span class="icon">🧮</span>
+            <span class="label">Conteo<br><small style="font-weight:600;opacity:.6">¿Cuántos hay?</small></span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu sem" onclick="iniciar('semantica')">
+            <span class="icon">🧩</span>
+            <span class="label">Semántica<br><small style="font-weight:600;opacity:.6">Palabra → Librería Visual Nueva</small></span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu geo" onclick="iniciar('geometria')">
+            <span class="icon">📐</span>
+            <span class="label">Geometría 2D y 3D<br><small style="font-weight:600;opacity:.6">Todas las formas</small></span><span class="arrow">›</span>
+        </button>
+    </div>
+
+    <!-- SUBMENÚ LECTURA -->
+    <div id="submenu" class="screen">
+        <h1>Ruta de Lectura</h1>
+        <p class="subtitle">El sistema repite lo pendiente dinámicamente</p>
+        <button class="btn-menu sub reading" onclick="iniciar('vocales')"><span class="icon">🅰</span><span class="label">1. Vocales</span><span class="arrow">›</span></button>
+        <button class="btn-menu sub reading" onclick="iniciar('silabas_simples')"><span class="icon">📖</span><span class="label">2. Sílabas Simples (MA, LA, DE…)</span><span class="arrow">›</span></button>
+        <button class="btn-menu sub reading" onclick="iniciar('silabas_complejas')"><span class="icon">🌀</span><span class="label">3. Sílabas de 3 letras (TRA, CLA…)</span><span class="arrow">›</span></button>
+        <button class="btn-menu sub reading" onclick="iniciar('palabras_basicas')"><span class="icon">🏠</span><span class="label">4. Palabras Básicas (CA-SA)</span><span class="arrow">›</span></button>
+        <button class="btn-menu sub reading" onclick="iniciar('palabras_complejas')"><span class="icon">🌟</span><span class="label">5. Palabras Complejas (SI-LLA)</span><span class="arrow">›</span></button>
+        <button class="btn-menu sub reading" onclick="iniciar('palabras_largas')"><span class="icon">🦋</span><span class="label">6. Palabras Largas (CA-BA-LLO)</span><span class="arrow">›</span></button>
+        <button class="btn-back" onclick="volverMenuPrincipal()">⬅ Volver al Menú</button>
+    </div>
+
+    <!-- JUEGO -->
+    <div id="game" class="screen">
+        <div id="nivel-actual"></div>
+
+        <div id="progress-container"><div id="progress-bar"></div></div>
+
+        <div class="streak-row">
+            <div id="streak-display"><span class="fire">🔥</span><span id="streak-val">0</span></div>
+            <div id="remaining-display">Faltan: <span id="remaining-val">0</span> 🎉</div>
+        </div>
+
+        <div id="display-text">?</div>
+        <div id="count-display"></div>
+        <div id="numpad"></div>
+        <div id="grid-opciones"></div>
+
+        <div id="standard-controls" class="controls">
+            <button class="btn-action btn-incorrect" onclick="marcar(false)">✖</button>
+            <button class="btn-action btn-correct" onclick="marcar(true)">✔</button>
+        </div>
+
+        <button class="btn-back" onclick="mostrarResultado()">⏹ Salir de Práctica</button>
+    </div>
+
+    <!-- PANTALLA DE RESULTADOS -->
+    <div id="result-screen" class="screen">
+        <div class="result-emoji">🏆</div>
+        <h1>¡Meta Cumplida!</h1>
+        <p class="subtitle" id="result-subtitle">¡Agustín lo hizo increíble!</p>
+        <div class="result-grid">
+            <div class="result-card"><div class="val" id="res-total">0</div><div class="lbl">Aciertos</div></div>
+            <div class="result-card"><div class="val" id="res-errores">0</div><div class="lbl">Intentos Extra</div></div>
+        </div>
+        <button class="btn-menu math" style="margin-top:10px" onclick="seguirJugando()">
+            <span class="icon">🚀</span><span class="label">¡Seguir Jugando! (+10 Meta)</span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu reading" style="margin-top:10px" onclick="volverMenuPrincipal()">
+            <span class="icon">🏠</span><span class="label">Guardar y Volver</span><span class="arrow">›</span>
+        </button>
+    </div>
+
+    <script>
+    // ============================================================
+    // V8 - LIBRERÍAS VISUALES MASIVAS Y DICCIONARIOS
+    // ============================================================
+    
+    // FORMAS SVGs
+    const svgs = {
+        circulo:   '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#f43f5e"/></svg>',
+        cuadrado:  '<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="8" fill="#6c63ff"/></svg>',
+        triangulo: '<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#10d982"/></svg>',
+        rectangulo:'<svg viewBox="0 0 100 100"><rect x="5" y="25" width="90" height="50" rx="6" fill="#f59e0b"/></svg>',
+        rombo:     '<svg viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50" fill="#a78bfa"/></svg>',
+        cubo:      '<svg viewBox="0 0 100 100"><polygon points="50,15 85,35 85,70 50,90 15,70 15,35" fill="#6c63ff" stroke="#4c44bb" stroke-width="2"/><polygon points="50,15 85,35 50,55 15,35" fill="#a78bfa" stroke="#4c44bb" stroke-width="2"/><polygon points="50,55 85,35 85,70 50,90" fill="#4338ca" stroke="#4c44bb" stroke-width="2"/></svg>',
+        cilindro:  '<svg viewBox="0 0 100 100"><path d="M 25 30 A 25 10 0 0 0 75 30 L 75 75 A 25 10 0 0 1 25 75 Z" fill="#f59e0b" stroke="#b45309" stroke-width="2"/><ellipse cx="50" cy="30" rx="25" ry="10" fill="#fbbf24" stroke="#b45309" stroke-width="2"/></svg>',
+        piramide:  '<svg viewBox="0 0 100 100"><polygon points="50,10 90,80 10,80" fill="#f1c40f" stroke="#d97706" stroke-width="2"/><polygon points="50,10 90,80 50,92" fill="#f59e0b" stroke="#d97706" stroke-width="2"/><polygon points="50,10 10,80 50,92" fill="#fbbf24" stroke="#d97706" stroke-width="2"/></svg>',
+        esfera:    '<svg viewBox="0 0 100 100"><defs><radialGradient id="sg" cx="35%" cy="35%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#9f1239"/></radialGradient></defs><circle cx="50" cy="50" r="44" fill="url(#sg)"/></svg>',
+        corazon:   '<svg viewBox="0 0 100 100"><path d="M50,90 C50,90 10,60 10,35 C10,15 35,15 50,35 C65,15 90,15 90,35 C90,60 50,90 50,90 Z" fill="#ec4899"/></svg>',
+        estrella:  '<svg viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,55 79,85 50,65 21,85 32,55 5,35 39,35" fill="#fbbf24"/></svg>',
+        pentagono: '<svg viewBox="0 0 100 100"><polygon points="50,5 95,35 80,95 20,95 5,35" fill="#14b8a6"/></svg>',
+        hexagono:  '<svg viewBox="0 0 100 100"><polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#8b5cf6"/></svg>',
+        ovalo:     '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="45" ry="30" fill="#0ea5e9"/></svg>',
+        cruz:      '<svg viewBox="0 0 100 100"><polygon points="40,10 60,10 60,40 90,40 90,60 60,60 60,90 40,90 40,60 10,60 10,40 40,40" fill="#f43f5e"/></svg>'
+    };
+
+    // MEGA LIBRERÍA SEMÁNTICA (Genera combinaciones dinámicas infinitas)
+    const semanticaDB = [
+        {w:'PERRO', e:'🐶'}, {w:'GATO', e:'🐱'}, {w:'RATÓN', e:'🐭'}, {w:'CONEJO', e:'🐰'}, {w:'ZORRO', e:'🦊'}, 
+        {w:'OSO', e:'🐻'}, {w:'TIGRE', e:'🐯'}, {w:'LEÓN', e:'🦁'}, {w:'VACA', e:'🐮'}, {w:'CERDO', e:'🐷'},
+        {w:'RANA', e:'🐸'}, {w:'MONO', e:'🐵'}, {w:'GALLINA', e:'🐔'}, {w:'PINGÜINO', e:'🐧'}, {w:'PÁJARO', e:'🐦'},
+        {w:'PATO', e:'🦆'}, {w:'BÚHO', e:'🦉'}, {w:'LOBO', e:'🐺'}, {w:'CABALLO', e:'🐴'}, {w:'UNICORNIO', e:'🦄'},
+        {w:'ABEJA', e:'🐝'}, {w:'GUSANO', e:'🐛'}, {w:'MARIPOSA', e:'🦋'}, {w:'CARACOL', e:'🐌'}, {w:'CHINITA', e:'🐞'},
+        {w:'ARAÑA', e:'🕷️'}, {w:'CANGREJO', e:'🦀'}, {w:'PULPO', e:'🐙'}, {w:'PEZ', e:'🐟'}, {w:'DELFÍN', e:'🐬'},
+        {w:'BALLENA', e:'🐳'}, {w:'TIBURÓN', e:'🦈'}, {w:'COCODRILO', e:'🐊'}, {w:'ELEFANTE', e:'🐘'}, {w:'JIRAFA', e:'🦒'},
+        {w:'MANZANA', e:'🍎'}, {w:'PERA', e:'🍐'}, {w:'NARANJA', e:'🍊'}, {w:'LIMÓN', e:'🍋'}, {w:'PLÁTANO', e:'🍌'},
+        {w:'SANDÍA', e:'🍉'}, {w:'UVA', e:'🍇'}, {w:'FRUTILLA', e:'🍓'}, {w:'CEREZA', e:'🍒'}, {w:'TOMATE', e:'🍅'},
+        {w:'PALTA', e:'🥑'}, {w:'ZANAHORIA', e:'🥕'}, {w:'CHOCLO', e:'🌽'}, {w:'PAN', e:'🍞'}, {w:'QUESO', e:'🧀'},
+        {w:'HUEVO', e:'🥚'}, {w:'PIZZA', e:'🍕'}, {w:'HELADO', e:'🍦'}, {w:'TORTA', e:'🎂'}, {w:'LECHE', e:'🥛'},
+        {w:'AUTO', e:'🚗'}, {w:'BUS', e:'🚌'}, {w:'POLICÍA', e:'🚓'}, {w:'AMBULANCIA', e:'🚑'}, {w:'BICICLETA', e:'🚲'},
+        {w:'MOTO', e:'🏍️'}, {w:'TREN', e:'🚂'}, {w:'AVIÓN', e:'✈️'}, {w:'HELICÓPTERO', e:'🚁'}, {w:'BARCO', e:'🚢'},
+        {w:'COHETE', e:'🚀'}, {w:'NUBE', e:'☁️'}, {w:'LLUVIA', e:'🌧️'}, {w:'NIEVE', e:'❄️'}, {w:'SOL', e:'☀️'},
+        {w:'LUNA', e:'🌙'}, {w:'ESTRELLA', e:'⭐'}, {w:'FUEGO', e:'🔥'}, {w:'ÁRBOL', e:'🌳'}, {w:'FLOR', e:'🌸'},
+        {w:'RELOJ', e:'⌚'}, {w:'TELÉFONO', e:'📱'}, {w:'CÁMARA', e:'📷'}, {w:'REGALO', e:'🎁'}, {w:'GLOBO', e:'🎈'},
+        {w:'PELOTA', e:'⚽'}, {w:'LIBRO', e:'📚'}, {w:'LÁPIZ', e:'✏️'}, {w:'CASA', e:'🏠'}, {w:'PUERTA', e:'🚪'}
+    ];
+
+    const geometriaDB = [
+        {w: 'CÍRCULO', s: svgs.circulo}, {w: 'CUADRADO', s: svgs.cuadrado}, {w: 'TRIÁNGULO', s: svgs.triangulo},
+        {w: 'RECTÁNGULO', s: svgs.rectangulo}, {w: 'ROMBO', s: svgs.rombo}, {w: 'CUBO (3D)', s: svgs.cubo},
+        {w: 'CILINDRO (3D)', s: svgs.cilindro}, {w: 'PIRÁMIDE (3D)', s: svgs.piramide}, {w: 'ESFERA (3D)', s: svgs.esfera},
+        {w: 'CORAZÓN', s: svgs.corazon}, {w: 'ESTRELLA', s: svgs.estrella}, {w: 'PENTÁGONO', s: svgs.pentagono},
+        {w: 'HEXÁGONO', s: svgs.hexagono}, {w: 'ÓVALO', s: svgs.ovalo}, {w: 'CRUZ', s: svgs.cruz}
+    ];
+
+    // MEGABASE DE LECTURA
+    const lecturaDB = {
+        vocales: ['A','E','I','O','U','a','e','i','o','u'],
+        silabas_simples: [
+            'MA','ME','MI','MO','MU','PA','PE','PI','PO','PU','SA','SE','SI','SO','SU','LA','LE','LI','LO','LU',
+            'TA','TE','TI','TO','TU','DA','DE','DI','DO','DU','NA','NE','NI','NO','NU','CA','CO','CU','FA','FE','FI','FO','FU',
+            'BA','BE','BI','BO','BU','VA','VE','VI','VO','VU','JA','JE','JI','JO','JU','GA','GO','GU','HA','HE','HI','HO','HU',
+            'RA','RE','RI','RO','RU','YA','YE','YI','YO','YU','ZA','ZE','ZI','ZO','ZU','LLA','LLE','LLI','LLO','LLU','CHA','CHE','CHI','CHO','CHU'
+        ],
+        silabas_complejas: [
+            'BRA','BRE','BRI','BRO','BRU','PLA','PLE','PLI','PLO','PLU','TRA','TRE','TRI','TRO','TRU',
+            'BLA','BLE','BLI','BLO','BLU','FRA','FRE','FRI','FRO','FRU','CRA','CRE','CRI','CRO','CRU',
+            'GRA','GRE','GRI','GRO','GRU','DRA','DRE','DRI','DRO','DRU','CLA','CLE','CLI','CLO','CLU','FLA','FLE','FLI','FLO','FLU'
+        ],
+        palabras_basicas: [
+            'MA - MA','PA - PA','CA - SA','ME - SA','SO - PA','SA - PO','PE - LO','LA - TA','DE - DO','NI - ÑO',
+            'GA - TO','BO - CA','PA - TO','RO - SA','PI - NO','LO - RO','CU - NA','TA - ZA','LU - NA','VA - CA',
+            'PE - RA','RA - NA','MO - NO','BE - BÉ','LE - ÓN','FO - CA','BÚ - HO','SO - L','MA - R','PA - N',
+            'DO - S','TRE - S','SEI - S','O - JO','A - LA','A - JO','U - VA','O - SO','U - ÑA','BO - TA',
+            'RO - PA','TE - LA','PO - LLO','LO - BO','PA - VO','RU - DA'
+        ],
+        palabras_complejas: [
+            'SI - LLA','PE - RRO','PAS - TO','BAR - CO','FRU - TA','PLA - TO','LLA - VE','BRA - ZO','BLAN - CO','BRU - JA',
+            'GLO - BO','PLAN - TA','TIG - RE','LÁ - PIZ','ÁR - BOL','CRUZ','TRU - CO','FLE - CHA','FLO - RES','FUE - GO',
+            'GOL - PE','LLE - NO','LLO - RA','LU - CES','NUB - ES','SOM - BRA','PUE - BLOS','CRÁN - EO','BROM - A',
+            'PRA - DO','PRE - MIO','TRE - N','PLA - YA','BRO - CHA','TRON - CO','CLAV - O','GRA - NO','PIE - DRA','TROM - PO'
+        ],
+        palabras_largas: [
+            'CA - BA - LLO','PE - LO - TA','ZA - PA - TO','MU - ÑE - CA','CA - MI - SA','PA - YA - SO','HE - LA - DO','JI - RA - FA',
+            'ES - CUE - LA','MAN - ZA - NA','ES - TRE - LLA','TROM - PE - TA','E - LE - FAN - TE','MA - RI - PO - SA','BI - CI - CLE - TA',
+            'HE - LI - CÓP - TE - RO','COM - PU - TA - DO - RA','TE - LÉ - FO - NO','CUA - DER - NO','MO - CHI - LA','PI - ZA - RRA',
+            'LÁM - PA - RA','VEN - TA - NA','RE - FRI - GE - RA - DOR','A - U - TO - MÓ - VIL','SEM - Á - FO - RO','CO - CO - DRI - LO',
+            'MUR - CIÉ - LA - GO','SER - PIEN - TE','TOR - TU - GA','HOR - MI - GA','CA - RA - COL','A - BUE - LO','A - MI - GO',
+            'MAN - TE - QUI - LLA','CHO - CO - LA - TE','IN - SEC - TO','CA - LEN - DA - RIO'
+        ]
+    };
+
+    const emojiSetsPool = ['⭐','🍎','🐶','🌸','🚀','🦋','🎈','🚗','⚽','🧸','🍕','🍓','🐸','🐼','💎'];
+
+    // ============================================================
+    // ESTADO DEL SISTEMA V8
+    // ============================================================
+    let modoActual = "";
+    let itemActual = null;
+    let srQueue    = [];   
+    let srModo     = false;
+
+    // Metas y Stats
+    let metaSesion      = 0;
+    let sesionCorrectas = 0;
+    let sesionErrores   = 0;
+    
+    // Streaks localStorage
+    let streakActual = parseInt(localStorage.getItem('agustin_streak') || '0');
+    let sesionesTotal = parseInt(localStorage.getItem('agustin_sessions') || '0');
+
+    // ============================================================
+    // FUNCIONALIDAD PRINCIPAL
+    // ============================================================
+    function mostrarPantalla(id) {
+        ['menu','submenu','game','result-screen'].forEach(s => {
+            const el = document.getElementById(s);
+            if (el) { el.style.display = 'none'; el.style.animation = 'none'; }
+        });
+        const target = document.getElementById(id);
+        target.style.display = 'block';
+        void target.offsetWidth; // re-trigger anim
+        target.style.animation = 'slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+    }
+
+    function mostrarSubMenu() { mostrarPantalla('submenu'); }
+
+    function volverMenuPrincipal() {
+        actualizarMenuStats();
+        mostrarPantalla('menu');
+    }
+
+    function iniciar(modo) {
+        modoActual = modo;
+        metaSesion = 20; // 20 Puntos para la meta
+        sesionCorrectas = 0;
+        sesionErrores = 0;
+
+        mostrarPantalla('game');
+        document.getElementById('nivel-actual').innerText = formatModoLabel(modo);
+
+        if (modo === 'mate' || modo === 'conteo') {
+            srModo = false;
+        } else {
+            // Inicializar Spaced Repetition (infinito)
+            const fuente = (modo === 'semantica') ? semanticaDB : (modo === 'geometria') ? geometriaDB : lecturaDB[modo];
+            // Se inician con Cooldown (cd) aleatorio entre 0 a 5, para no repetir orden siempre inicial.
+            srQueue = fuente.map(item => ({ item, cd: Math.floor(Math.random() * Math.min(6, fuente.length)) }));
+            shuffle(srQueue);
+            srModo = true;
+        }
+
+        siguiente();
+    }
+
+    function formatModoLabel(m) {
+        const map = { vocales:'Vocales', silabas_simples:'Sílabas Simples', silabas_complejas:'Sílabas Complejas', palabras_basicas:'Palabras Básicas', palabras_complejas:'Palabras Complejas', palabras_largas:'Palabras Largas', mate:'Matemáticas', conteo:'Conteo', semantica:'Semántica', geometria:'Geometría' };
+        return map[m] || m;
+    }
+
+    function generarMate() {
+        let ans;
+        if(Math.random() < 0.33) {
+            ans = Math.floor(Math.random()*9)+1; itemActual = {texto:`${ans-1} , _ , ${ans+1}`, ans};
+        } else if(Math.random() < 0.5) {
+            ans = Math.floor(Math.random()*10); itemActual = {texto:`_ , ${ans+1}`, ans};
+        } else {
+            ans = Math.floor(Math.random()*10)+1; itemActual = {texto:`${ans-1} , _`, ans};
+        }
+    }
+
+    function generarConteo() {
+        const char = emojiSetsPool[Math.floor(Math.random() * emojiSetsPool.length)];
+        const cantidad = Math.floor(Math.random()*9)+1; 
+        const emojis = Array(cantidad).fill(char).join('');
+        itemActual = { emojis, ans: cantidad };
+    }
+
+    // ============================================================
+    // BUCLE DEL JUEGO
+    // ============================================================
+    function siguiente() {
+        if (sesionCorrectas >= metaSesion) {
+            mostrarResultado();
+            return;
+        }
+
+        actualizarProgreso();
+        actualizarStreakUI();
+
+        if (modoActual === 'mate') {
+            generarMate(); prepararInterfaz();
+        } else if (modoActual === 'conteo') {
+            generarConteo(); prepararInterfaz();
+        } else {
+            // Lógica SR Avanzada
+            let candidates = srQueue.filter(x => x.cd <= 0);
+            if(candidates.length === 0) {
+                // Viaje en el tiempo si ninguna palabra está ready
+                const minCd = Math.min(...srQueue.map(x => x.cd));
+                srQueue.forEach(x => { x.cd -= minCd; });
+                candidates = srQueue.filter(x => x.cd <= 0);
+            }
+            shuffle(candidates);
+            const entry = candidates[0]; // Extrae la elegida
+            
+            if(modoActual === 'semantica') {
+                itemActual = { w: entry.item.w, e: entry.item.e, _srEntry: entry };
+            } else if (modoActual === 'geometria') {
+                itemActual = { w: entry.item.w, s: entry.item.s, _srEntry: entry };
+            } else {
+                itemActual = { texto: entry.item, _srEntry: entry };
+            }
+            prepararInterfaz();
+        }
+    }
+
+    function prepararInterfaz() {
+        document.getElementById('numpad').style.display = 'none';
+        document.getElementById('grid-opciones').style.display = 'none';
+        document.getElementById('standard-controls').style.display = 'flex';
+        document.getElementById('count-display').style.display = 'none';
+        document.getElementById('display-text').style.display = 'flex';
+
+        const display = document.getElementById('display-text');
+        display.className = '';
+
+        if (modoActual === 'mate') {
+            document.getElementById('standard-controls').style.display = 'none';
+            document.getElementById('numpad').style.display = 'grid';
+            renderNumpad(0,10);
+            ejecutarScrambler(itemActual.texto);
+        } else if (modoActual === 'conteo') {
+            document.getElementById('standard-controls').style.display = 'none';
+            document.getElementById('display-text').style.display = 'none';
+            document.getElementById('numpad').style.display = 'grid';
+            renderNumpad(1,9);
+            const cd = document.getElementById('count-display');
+            cd.style.display = 'flex'; cd.innerHTML = itemActual.emojis;
+        } else if (modoActual === 'semantica') {
+            document.getElementById('standard-controls').style.display = 'none';
+            document.getElementById('grid-opciones').style.display = 'grid';
+            ejecutarScrambler(itemActual.w);
+            
+            // Picks visuales dinámicos
+            let correctHTML = itemActual.e;
+            let pool = semanticaDB.filter(x => x.w !== itemActual.w);
+            shuffle(pool);
+            let optsArray = [correctHTML, pool[0].e, pool[1].e, pool[2].e];
+            shuffle(optsArray);
+            setupOpciones(optsArray, correctHTML);
+
+        } else if (modoActual === 'geometria') {
+            document.getElementById('standard-controls').style.display = 'none';
+            document.getElementById('grid-opciones').style.display = 'grid';
+            ejecutarScrambler(itemActual.w);
+            
+            let correctHTML = itemActual.s;
+            let pool = geometriaDB.filter(x => x.w !== itemActual.w);
+            shuffle(pool);
+            let optsArray = [correctHTML, pool[0].s, pool[1].s, pool[2].s];
+            shuffle(optsArray);
+            setupOpciones(optsArray, correctHTML);
+
+        } else {
+            // LECTURA
+            ejecutarScrambler(itemActual.texto);
+        }
+
+        // Bajar cd de la cola entera de fondo por cada turno gastado
+        if(srModo) { srQueue.forEach(x => { if(x.cd > 0) x.cd--; }); }
+    }
+
+    function ejecutarScrambler(textoFinal) {
+        const displayObj = document.getElementById('display-text');
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let it = 0, max = 10;
+        const keep = new Set(['-',',',' ','_','(',')',':','Á','É','Í','Ó','Ú','Ñ','á','é','í','ó','ú','ñ']);
+
+        const iv = setInterval(() => {
+            displayObj.innerText = textoFinal.split('').map(ch => keep.has(ch) ? ch : chars[Math.floor(Math.random()*chars.length)]).join('');
+            it++;
+            if(it >= max){ clearInterval(iv); displayObj.innerText = textoFinal; }
+        }, 45);
+    }
+
+    function renderNumpad(min, max){
+        const pad = document.getElementById('numpad');
+        pad.innerHTML = ''; let nums = [];
+        for(let i=min; i<=max; i++) nums.push(i);
+        shuffle(nums);
+        nums.forEach(n => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-num'; btn.innerText = n;
+            btn.onclick = () => checkNum(n); pad.appendChild(btn);
+        });
+    }
+
+    function checkNum(n) {
+        if(n === itemActual.ans){
+            const display = document.getElementById('display-text');
+            display.innerHTML = (modoActual === 'conteo') ? `<span style="color:var(--success)">¡${n}!</span>` : itemActual.texto.replace('_', `<span style="color:var(--success)">${n}</span>`);
+            marcarUI(true);
+        } else { triggerError(); }
+    }
+
+    function setupOpciones(optsArray, correctHTML) {
+        const grid = document.getElementById('grid-opciones'); grid.innerHTML = '';
+        optsArray.forEach(html => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-opcion'; btn.innerHTML = html;
+            btn.onclick = () => (html === correctHTML) ? marcarUI(true) : triggerError();
+            grid.appendChild(btn);
+        });
+    }
+
+    // ============================================================
+    // RESPUESTAS Y SR ENGINE UPDATE
+    // ============================================================
+    function triggerError() {
+        sesionErrores++;
+        
+        const d = document.getElementById('display-text');
+        d.classList.remove('error-shake'); void d.offsetWidth; d.classList.add('error-shake');
+
+        const cd = document.getElementById('count-display');
+        cd.classList.remove('error-shake'); void cd.offsetWidth; cd.classList.add('error-shake');
+
+        // SR: Error = ¡Aparecerá muy pronto! en 1 o 2 turnos
+        if(srModo && itemActual._srEntry){
+            itemActual._srEntry.cd = Math.floor(Math.random() * 2) + 1;
+        }
+
+        streakActual = 0; localStorage.setItem('agustin_streak', 0);
+    }
+
+    function marcarUI(esCorrecto) {
+        if(esCorrecto){
+            sesionCorrectas++; streakActual++;
+            if(streakActual > parseInt(localStorage.getItem('agustin_streak')||0)){
+                localStorage.setItem('agustin_streak', streakActual);
+            }
+            actualizarStreakUI();
+
+            document.getElementById('display-text').classList.add('success-text');
+
+            const pc = Math.min(50 + streakActual * 5, 120);
+            confetti({ particleCount: pc, spread: 70, origin: {y: 0.6} });
+
+            // SR: Correcto = Se pospone para el futuro (entre 5 y 12 turnos)
+            if(srModo && itemActual._srEntry){
+                const spread = Math.min(10, srQueue.length / 2); // balance dinámico
+                itemActual._srEntry.cd = Math.floor(Math.random() * 6) + Math.max(3, spread);
+            }
+
+            setTimeout(siguiente, 1200);
+        } else {
+            triggerError();
+        }
+    }
+
+    function marcar(esCorrecto) {
+        if(esCorrecto) marcarUI(true);
+        else { triggerError(); setTimeout(siguiente, 600); }
+    }
+
+    // ============================================================
+    // UI UPDATES
+    // ============================================================
+    function actualizarProgreso() {
+        const pct = Math.min((sesionCorrectas / metaSesion) * 100, 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('remaining-val').textContent = Math.max(0, metaSesion - sesionCorrectas);
+    }
+
+    function actualizarStreakUI(){ document.getElementById('streak-val').textContent = streakActual; }
+
+    function actualizarMenuStats(){
+        document.getElementById('menu-streak').textContent = localStorage.getItem('agustin_streak') || 0;
+        document.getElementById('menu-sessions').textContent = localStorage.getItem('agustin_sessions') || 0;
+    }
+
+    // ============================================================
+    // RESULTADOS
+    // ============================================================
+    function mostrarResultado(){
+        sesionesTotal++;
+        localStorage.setItem('agustin_sessions', sesionesTotal);
+
+        document.getElementById('res-total').textContent = sesionCorrectas;
+        document.getElementById('res-errores').textContent = sesionErrores;
+
+        const phrases = ['¡Agustín lo hizo increíble! 🌟','¡Fantástico trabajo! 🏆','¡Eres un genio del aprendizaje! 🧠','¡Papá está muy orgulloso! ❤️'];
+        document.getElementById('result-subtitle').textContent = phrases[Math.floor(Math.random()*phrases.length)];
+
+        mostrarPantalla('result-screen');
+        confetti({ particleCount: 250, spread: 120, origin: {y: 0.4} });
+        setTimeout(()=>confetti({particleCount:100, spread:80, origin:{y:0.6}}), 600);
+    }
+
+    function seguirJugando() {
+        metaSesion += 10;
+        mostrarPantalla('game');
+        siguiente();
+    }
+
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } }
+
+    actualizarMenuStats();
+    </script>
+</body>
+</html>
