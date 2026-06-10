@@ -155,30 +155,138 @@
             margin: 15px 0;
             color: var(--text);
         }
-        .sum-group {
-            background: var(--card2);
-            border: 1px solid var(--border);
-            padding: 10px 18px;
-            border-radius: 16px;
-            min-height: 60px;
+        .math-flow-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            letter-spacing: 2px;
+            gap: 8px;
+            width: 100%;
+            margin: 10px 0;
+            flex-wrap: wrap;
         }
-        .sum-sign {
-            font-size: 32px;
-            color: var(--primary2);
+        .math-group-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 20px;
+            min-width: 110px;
+        }
+        .math-emojis-box {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            min-height: 80px;
+            align-items: center;
+        }
+        .math-input-box {
+            font-size: 24px;
             font-weight: 900;
-        }
-        .sum-result {
+            width: 50px;
+            height: 50px;
             background: var(--card2);
-            border: 2px dashed var(--primary);
-            padding: 10px 22px;
-            border-radius: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text2);
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .math-input-box.active {
+            border-color: var(--primary);
             color: var(--primary2);
-            min-width: 60px;
-            text-align: center;
+            box-shadow: 0 0 10px rgba(108,99,255,0.4);
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 4px rgba(108,99,255,0.2); }
+            to { box-shadow: 0 0 14px rgba(108,99,255,0.6); }
+        }
+        .math-input-box.correct {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16,217,130,0.15);
+            box-shadow: 0 0 10px rgba(16,217,130,0.2);
+        }
+        .math-operator-sign {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--primary2);
+        }
+        .connect-game {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            width: 100%;
+            min-height: 250px;
+            position: relative;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .connect-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 15px;
+            z-index: 2;
+        }
+        .connect-node {
+            font-size: 44px;
+            width: 68px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--card2);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .connect-node.letter {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text);
+        }
+        .connect-node:hover {
+            border-color: var(--primary2);
+            transform: scale(1.05);
+        }
+        .connect-node.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(108,99,255,0.4);
+            background: rgba(108,99,255,0.1);
+        }
+        .connect-node.connected {
+            border-color: var(--success);
+            background: rgba(16, 217, 130, 0.08);
+            cursor: default;
+        }
+        .connect-svg-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .connect-line {
+            stroke-width: 6px;
+            stroke-linecap: round;
+            opacity: 0.85;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
         }
         .pattern-container {
             display: flex;
@@ -299,11 +407,15 @@
         </button>
         <button class="btn-menu math" onclick="iniciar('sumas')">
             <span class="icon">➕</span>
-            <span class="label">Sumas Visuales<br><small style="font-weight:600;opacity:.6">Suma frutas y objetos</small></span><span class="arrow">›</span>
+            <span class="label">Sumas Visuales<br><small style="font-weight:600;opacity:.6">Suma frutas con guía</small></span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu math" onclick="iniciar('restas')">
+            <span class="icon">➖</span>
+            <span class="label">Restas Visuales<br><small style="font-weight:600;opacity:.6">Resta frutas con guía</small></span><span class="arrow">›</span>
         </button>
         <button class="btn-menu count" onclick="iniciar('conteo')">
             <span class="icon">🧮</span>
-            <span class="label">Conteo Interactiva<br><small style="font-weight:600;opacity:.6">Toca para contar y marcar</small></span><span class="arrow">›</span>
+            <span class="label">Conteo Interactivo<br><small style="font-weight:600;opacity:.6">Toca para contar y marcar</small></span><span class="arrow">›</span>
         </button>
         <button class="btn-menu sem" onclick="iniciar('semantica')">
             <span class="icon">🧩</span>
@@ -311,11 +423,15 @@
         </button>
         <button class="btn-menu sem" onclick="iniciar('patrones')">
             <span class="icon">🔁</span>
-            <span class="label">Completar Patrones<br><small style="font-weight:600;opacity:.6">¿Qué dibujo sigue?</small></span><span class="arrow">›</span>
+            <span class="label">Completar Patrones<br><small style="font-weight:600;opacity:.6">Niveles 1 al 4 con subniveles</small></span><span class="arrow">›</span>
         </button>
         <button class="btn-menu reading" onclick="iniciar('escucha')">
             <span class="icon">🔊</span>
             <span class="label">Escucha y Elige<br><small style="font-weight:600;opacity:.6">Escucha la voz y elige</small></span><span class="arrow">›</span>
+        </button>
+        <button class="btn-menu reading" onclick="iniciar('conectar')">
+            <span class="icon">🔌</span>
+            <span class="label">Conectar Letras<br><small style="font-weight:600;opacity:.6">Une el dibujo con su letra inicial</small></span><span class="arrow">›</span>
         </button>
         <button class="btn-menu geo" onclick="iniciar('geometria')">
             <span class="icon">📐</span>
@@ -419,7 +535,14 @@
         {w:'COHETE', e:'🚀'}, {w:'NUBE', e:'☁️'}, {w:'LLUVIA', e:'🌧️'}, {w:'NIEVE', e:'❄️'}, {w:'SOL', e:'☀️'},
         {w:'LUNA', e:'🌙'}, {w:'ESTRELLA', e:'⭐'}, {w:'FUEGO', e:'🔥'}, {w:'ÁRBOL', e:'🌳'}, {w:'FLOR', e:'🌸'},
         {w:'RELOJ', e:'⌚'}, {w:'TELÉFONO', e:'📱'}, {w:'CÁMARA', e:'📷'}, {w:'REGALO', e:'🎁'}, {w:'GLOBO', e:'🎈'},
-        {w:'PELOTA', e:'⚽'}, {w:'LIBRO', e:'📚'}, {w:'LÁPIZ', e:'✏️'}, {w:'CASA', e:'🏠'}, {w:'PUERTA', e:'🚪'}
+        {w:'PELOTA', e:'⚽'}, {w:'LIBRO', e:'📚'}, {w:'LÁPIZ', e:'✏️'}, {w:'CASA', e:'🏠'}, {w:'PUERTA', e:'🚪'},
+        {w:'DINOSAURIO', e:'🦖'}, {w:'TORTUGA', e:'🐢'}, {w:'HORMIGA', e:'🐜'}, {w:'HAMBURGUESA', e:'🍔'}, {w:'DONA', e:'🍩'},
+        {w:'ZAPATO', e:'👟'}, {w:'SOMBRERO', e:'🎩'}, {w:'GORRA', e:'🧢'}, {w:'CORONA', e:'👑'}, {w:'GUITARRA', e:'🎸'},
+        {w:'TAMBOR', e:'🥁'}, {w:'TROMPETA', e:'🎺'}, {w:'TIJERAS', e:'✂️'}, {w:'LLAVE', e:'🔑'}, {w:'MOCHILA', e:'🎒'},
+        {w:'PARAGUAS', e:'☔'}, {w:'PATINETA', e:'🛹'}, {w:'CAMIÓN', e:'🚚'}, {w:'ARCOÍRIS', e:'🌈'}, {w:'JABÓN', e:'🧼'},
+        {w:'ESPEJO', e:'🪞'}, {w:'FOCO', e:'💡'}, {w:'TAZA', e:'☕'}, {w:'PIÑA', e:'🍍'}, {w:'CACTUS', e:'🌵'},
+        {w:'PLANTA', e:'🌱'}, {w:'PANDA', e:'🐼'}, {w:'DULCE', e:'🍬'}, {w:'PALETA', e:'🍭'}, {w:'CHILE', e:'🌶️'},
+        {w:'BRÓCOLI', e:'🥦'}
     ];
 
     const geometriaDB = [
@@ -477,6 +600,12 @@
     let srQueue    = [];   
     let srModo     = false;
 
+    // Conectar letras globals
+    let selectedEmojiNode = null;
+    let selectedLetterNode = null;
+    let connectedCount = 0;
+    let activeConnections = [];
+
     // Metas y Stats
     let metaSesion      = 0;
     let sesionCorrectas = 0;
@@ -516,7 +645,7 @@
         mostrarPantalla('game');
         document.getElementById('nivel-actual').innerText = formatModoLabel(modo);
 
-        if (modo === 'mate' || modo === 'conteo' || modo === 'sumas' || modo === 'patrones' || modo === 'escucha') {
+        if (modo === 'mate' || modo === 'conteo' || modo === 'sumas' || modo === 'restas' || modo === 'patrones' || modo === 'escucha' || modo === 'conectar') {
             srModo = false;
         } else {
             // Inicializar Spaced Repetition (infinito)
@@ -531,7 +660,7 @@
     }
 
     function formatModoLabel(m) {
-        const map = { vocales:'Vocales', silabas_simples:'Sílabas Simples', silabas_complejas:'Sílabas Complejas', palabras_basicas:'Palabras Básicas', palabras_complejas:'Palabras Complejas', palabras_largas:'Palabras Largas', mate:'Matemáticas', sumas:'Sumas Visuales', conteo:'Conteo', semantica:'Semántica', patrones:'Completar Patrones', escucha:'Escucha y Elige', geometria:'Geometría' };
+        const map = { vocales:'Vocales', silabas_simples:'Sílabas Simples', silabas_complejas:'Sílabas Complejas', palabras_basicas:'Palabras Básicas', palabras_complejas:'Palabras Complejas', palabras_largas:'Palabras Largas', mate:'Matemáticas', sumas:'Sumas Visuales', restas:'Restas Visuales', conteo:'Conteo', semantica:'Semántica', patrones:'Completar Patrones', escucha:'Escucha y Elige', conectar:'Conectar Letras', geometria:'Geometría' };
         return map[m] || m;
     }
 
@@ -552,44 +681,91 @@
         itemActual = { char, ans: cantidad };
     }
 
+    let mathStep = 1;
+
     function generarSumas() {
         const char = emojiSetsPool[Math.floor(Math.random() * emojiSetsPool.length)];
         const num1 = Math.floor(Math.random() * 4) + 1; // 1 a 4
         const num2 = Math.floor(Math.random() * 4) + 1; // 1 a 4
         const ans = num1 + num2;
         itemActual = { char, num1, num2, ans };
+        mathStep = 1;
+    }
+
+    function generarRestas() {
+        const char = emojiSetsPool[Math.floor(Math.random() * emojiSetsPool.length)];
+        const num1 = Math.floor(Math.random() * 5) + 4; // 4 a 8
+        const num2 = Math.floor(Math.random() * (num1 - 2)) + 1; // 1 a num1 - 2
+        const ans = num1 - num2;
+        itemActual = { char, num1, num2, ans };
+        mathStep = 1;
     }
 
     function generarPatrones() {
+        const level = Math.floor(Math.random() * 4) + 1;
         const idx1 = Math.floor(Math.random() * emojiSetsPool.length);
         let idx2 = Math.floor(Math.random() * emojiSetsPool.length);
-        while (idx2 === idx1) {
-            idx2 = Math.floor(Math.random() * emojiSetsPool.length);
-        }
-        const emojiA = emojiSetsPool[idx1];
-        const emojiB = emojiSetsPool[idx2];
-        const type = Math.floor(Math.random() * 4);
+        while (idx2 === idx1) { idx2 = Math.floor(Math.random() * emojiSetsPool.length); }
+        let idx3 = Math.floor(Math.random() * emojiSetsPool.length);
+        while (idx3 === idx1 || idx3 === idx2) { idx3 = Math.floor(Math.random() * emojiSetsPool.length); }
+        
+        const A = emojiSetsPool[idx1];
+        const B = emojiSetsPool[idx2];
+        const C = emojiSetsPool[idx3];
+        
         let seq = [];
         let ans = "";
-        if (type === 0) {
-            seq = [emojiA, emojiB, emojiA, emojiB];
-            ans = emojiA;
-        } else if (type === 1) {
-            seq = [emojiB, emojiA, emojiB, emojiA];
-            ans = emojiB;
-        } else if (type === 2) {
-            seq = [emojiA, emojiA, emojiB, emojiA, emojiA];
-            ans = emojiB;
+        let presentEmojis = [];
+        
+        if (level === 1) {
+            seq = [A, B, A, B];
+            ans = A;
+            presentEmojis = [A, B];
+        } else if (level === 2) {
+            seq = [A, A, B, A, A];
+            ans = B;
+            presentEmojis = [A, B];
+        } else if (level === 3) {
+            seq = [A, B, C, A, B];
+            ans = C;
+            presentEmojis = [A, B, C];
         } else {
-            seq = [emojiA, emojiB, emojiB, emojiA, emojiB];
-            ans = emojiB;
+            seq = [A, B, B, C, A, B, B];
+            ans = C;
+            presentEmojis = [A, B, C];
         }
-        itemActual = { seq, ans, emojiA, emojiB };
+        itemActual = { seq, ans, presentEmojis, level };
     }
 
     function generarEscucha() {
         const target = semanticaDB[Math.floor(Math.random() * semanticaDB.length)];
         itemActual = { w: target.w, e: target.e, ans: target.e };
+    }
+
+    function getStartingLetter(word) {
+        let firstChar = word.trim().charAt(0).toUpperCase();
+        const map = {'Á':'A', 'É':'E', 'Í':'I', 'Ó':'O', 'Ú':'U'};
+        return map[firstChar] || firstChar;
+    }
+
+    function generarConectar() {
+        let items = [];
+        let letters = new Set();
+        let pool = [...semanticaDB];
+        shuffle(pool);
+        
+        for (let p of pool) {
+            let letter = getStartingLetter(p.w);
+            if (!letters.has(letter)) {
+                items.push(p);
+                letters.add(letter);
+                if (items.length === 3) break;
+            }
+        }
+        if (items.length < 3) {
+            items = pool.slice(0, 3);
+        }
+        itemActual = { items };
     }
 
     function reproducirAudioActual() {
@@ -622,10 +798,14 @@
             generarConteo(); prepararInterfaz();
         } else if (modoActual === 'sumas') {
             generarSumas(); prepararInterfaz();
+        } else if (modoActual === 'restas') {
+            generarRestas(); prepararInterfaz();
         } else if (modoActual === 'patrones') {
             generarPatrones(); prepararInterfaz();
         } else if (modoActual === 'escucha') {
             generarEscucha(); prepararInterfaz();
+        } else if (modoActual === 'conectar') {
+            generarConectar(); prepararInterfaz();
         } else {
             // Lógica SR Avanzada
             let candidates = srQueue.filter(x => x.cd <= 0);
@@ -681,24 +861,47 @@
                 };
                 cd.appendChild(el);
             }
-        } else if (modoActual === 'sumas') {
+        } else if (modoActual === 'sumas' || modoActual === 'restas') {
             document.getElementById('standard-controls').style.display = 'none';
             document.getElementById('display-text').style.display = 'none';
             document.getElementById('numpad').style.display = 'grid';
             renderNumpad(1,10);
             const cd = document.getElementById('count-display');
             cd.style.display = 'flex';
-            const g1 = Array(itemActual.num1).fill(itemActual.char).join('');
-            const g2 = Array(itemActual.num2).fill(itemActual.char).join('');
+            const sign = (modoActual === 'sumas') ? '+' : '-';
             cd.innerHTML = `
-                <div class="sum-container">
-                    <div class="sum-group">${g1}</div>
-                    <div class="sum-sign">+</div>
-                    <div class="sum-group">${g2}</div>
-                    <div class="sum-sign">=</div>
-                    <div class="sum-result">?</div>
+                <div class="math-flow-container">
+                    <div class="math-group-wrapper">
+                        <div class="math-emojis-box" id="math-emojis-1"></div>
+                        <div class="math-input-box active" id="math-box-1">?</div>
+                    </div>
+                    <div class="math-operator-sign">${sign}</div>
+                    <div class="math-group-wrapper">
+                        <div class="math-emojis-box" id="math-emojis-2"></div>
+                        <div class="math-input-box" id="math-box-2">?</div>
+                    </div>
+                    <div class="math-operator-sign">=</div>
+                    <div class="math-input-box" id="math-box-res">?</div>
                 </div>
             `;
+            const b1 = document.getElementById('math-emojis-1');
+            for(let i=0; i<itemActual.num1; i++) {
+                const el = document.createElement('span');
+                el.className = 'emoji-count-item';
+                el.style.fontSize = '34px'; el.style.width = '46px'; el.style.height = '46px';
+                el.innerText = itemActual.char;
+                el.onclick = (e) => e.currentTarget.classList.toggle('counted');
+                b1.appendChild(el);
+            }
+            const b2 = document.getElementById('math-emojis-2');
+            for(let i=0; i<itemActual.num2; i++) {
+                const el = document.createElement('span');
+                el.className = 'emoji-count-item';
+                el.style.fontSize = '34px'; el.style.width = '46px'; el.style.height = '46px';
+                el.innerText = itemActual.char;
+                el.onclick = (e) => e.currentTarget.classList.toggle('counted');
+                b2.appendChild(el);
+            }
         } else if (modoActual === 'patrones') {
             document.getElementById('standard-controls').style.display = 'none';
             document.getElementById('grid-opciones').style.display = 'grid';
@@ -712,11 +915,50 @@
             cd.innerHTML = seqH;
 
             let correctHTML = itemActual.ans;
-            let pool = emojiSetsPool.filter(x => x !== itemActual.ans);
+            let optsArray = [...itemActual.presentEmojis];
+            let pool = emojiSetsPool.filter(x => !optsArray.includes(x));
             shuffle(pool);
-            let optsArray = [correctHTML, pool[0], pool[1], pool[2]];
+            while (optsArray.length < 4) {
+                optsArray.push(pool.pop());
+            }
             shuffle(optsArray);
             setupOpciones(optsArray, correctHTML);
+        } else if (modoActual === 'conectar') {
+            document.getElementById('standard-controls').style.display = 'none';
+            document.getElementById('display-text').style.display = 'none';
+            const cd = document.getElementById('count-display');
+            cd.style.display = 'flex';
+            
+            let letterOpts = itemActual.items.map(it => ({ letter: getStartingLetter(it.w), word: it.w }));
+            shuffle(letterOpts);
+            
+            let html = `
+                <div class="connect-game">
+                    <svg class="connect-svg-lines" id="connect-svg"></svg>
+                    <div class="connect-column emojis" id="connect-col-emojis">
+            `;
+            itemActual.items.forEach((it, idx) => {
+                html += `<div class="connect-node emoji" data-word="${it.w}" id="node-emoji-${idx}" onclick="selectConnectNode(this, 'emoji')">${it.e}</div>`;
+            });
+            html += `
+                    </div>
+                    <div class="connect-column letters" id="connect-col-letters">
+            `;
+            letterOpts.forEach((lo, idx) => {
+                html += `<div class="connect-node letter" data-letter="${lo.letter}" id="node-letter-${idx}" onclick="selectConnectNode(this, 'letter')">${lo.letter}</div>`;
+            });
+            html += `
+                    </div>
+                </div>
+            `;
+            cd.innerHTML = html;
+            
+            selectedEmojiNode = null;
+            selectedLetterNode = null;
+            connectedCount = 0;
+            activeConnections = [];
+            
+            window.onresize = redrawConnectLines;
         } else if (modoActual === 'escucha') {
             document.getElementById('standard-controls').style.display = 'none';
             document.getElementById('grid-opciones').style.display = 'grid';
@@ -792,29 +1034,51 @@
     }
 
     function checkNum(n) {
-        if(n === itemActual.ans){
-            if (modoActual === 'conteo') {
-                const cd = document.getElementById('count-display');
-                cd.innerHTML = `<span style="color:var(--success); font-size: 52px; font-weight:900;">¡${n}! 🎉</span>`;
-            } else if (modoActual === 'sumas') {
-                const cd = document.getElementById('count-display');
-                const g1 = Array(itemActual.num1).fill(itemActual.char).join('');
-                const g2 = Array(itemActual.num2).fill(itemActual.char).join('');
-                cd.innerHTML = `
-                    <div class="sum-container">
-                        <div class="sum-group">${g1}</div>
-                        <div class="sum-sign">+</div>
-                        <div class="sum-group">${g2}</div>
-                        <div class="sum-sign">=</div>
-                        <div class="sum-result" style="border-color:var(--success); color:var(--success)">${n}</div>
-                    </div>
-                `;
-            } else {
-                const display = document.getElementById('display-text');
-                display.innerHTML = itemActual.texto.replace('_', `<span style="color:var(--success)">${n}</span>`);
+        if (modoActual === 'sumas' || modoActual === 'restas') {
+            if (mathStep === 1) {
+                if (n === itemActual.num1) {
+                    const box1 = document.getElementById('math-box-1');
+                    box1.innerText = n;
+                    box1.className = 'math-input-box correct';
+                    mathStep = 2;
+                    const box2 = document.getElementById('math-box-2');
+                    box2.className = 'math-input-box active';
+                } else {
+                    triggerError();
+                }
+            } else if (mathStep === 2) {
+                if (n === itemActual.num2) {
+                    const box2 = document.getElementById('math-box-2');
+                    box2.innerText = n;
+                    box2.className = 'math-input-box correct';
+                    mathStep = 3;
+                    const boxRes = document.getElementById('math-box-res');
+                    boxRes.className = 'math-input-box active';
+                } else {
+                    triggerError();
+                }
+            } else if (mathStep === 3) {
+                if (n === itemActual.ans) {
+                    const boxRes = document.getElementById('math-box-res');
+                    boxRes.innerText = n;
+                    boxRes.className = 'math-input-box correct';
+                    marcarUI(true);
+                } else {
+                    triggerError();
+                }
             }
-            marcarUI(true);
-        } else { triggerError(); }
+        } else {
+            if(n === itemActual.ans){
+                if (modoActual === 'conteo') {
+                    const cd = document.getElementById('count-display');
+                    cd.innerHTML = `<span style="color:var(--success); font-size: 52px; font-weight:900;">¡${n}! 🎉</span>`;
+                } else {
+                    const display = document.getElementById('display-text');
+                    display.innerHTML = itemActual.texto.replace('_', `<span style="color:var(--success)">${n}</span>`);
+                }
+                marcarUI(true);
+            } else { triggerError(); }
+        }
     }
 
     function setupOpciones(optsArray, correctHTML) {
@@ -838,6 +1102,101 @@
                 }
             };
             grid.appendChild(btn);
+        });
+    }
+
+    // ============================================================
+    // CONECTAR LETRAS LOGIC
+    // ============================================================
+    function selectConnectNode(el, type) {
+        if (el.classList.contains('connected')) return;
+        
+        if (type === 'emoji') {
+            if (selectedEmojiNode) selectedEmojiNode.classList.remove('selected');
+            selectedEmojiNode = el;
+            el.classList.add('selected');
+        } else {
+            if (selectedLetterNode) selectedLetterNode.classList.remove('selected');
+            selectedLetterNode = el;
+            el.classList.add('selected');
+        }
+        
+        if (selectedEmojiNode && selectedLetterNode) {
+            const word = selectedEmojiNode.getAttribute('data-word');
+            const letter = selectedLetterNode.getAttribute('data-letter');
+            
+            if (getStartingLetter(word) === letter) {
+                selectedEmojiNode.classList.remove('selected');
+                selectedLetterNode.classList.remove('selected');
+                selectedEmojiNode.classList.add('connected');
+                selectedLetterNode.classList.add('connected');
+                
+                const color = getRandomConnectColor();
+                drawLine(selectedEmojiNode, selectedLetterNode, color);
+                activeConnections.push({ n1: selectedEmojiNode.id, n2: selectedLetterNode.id, color });
+                
+                selectedEmojiNode = null;
+                selectedLetterNode = null;
+                connectedCount++;
+                
+                if (connectedCount === 3) {
+                    setTimeout(() => {
+                        marcarUI(true);
+                    }, 800);
+                }
+            } else {
+                const eNode = selectedEmojiNode;
+                const lNode = selectedLetterNode;
+                eNode.classList.add('error-shake');
+                lNode.classList.add('error-shake');
+                triggerError();
+                setTimeout(() => {
+                    eNode.classList.remove('error-shake', 'selected');
+                    lNode.classList.remove('error-shake', 'selected');
+                }, 500);
+                selectedEmojiNode = null;
+                selectedLetterNode = null;
+            }
+        }
+    }
+    
+    function getRandomConnectColor() {
+        const colors = ['#6c63ff', '#10d982', '#f59e0b', '#f43f5e', '#a78bfa'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    function drawLine(node1, node2, color) {
+        const svg = document.getElementById('connect-svg');
+        if (!svg) return;
+        const svgRect = svg.getBoundingClientRect();
+        const r1 = node1.getBoundingClientRect();
+        const r2 = node2.getBoundingClientRect();
+        
+        const x1 = r1.left - svgRect.left + r1.width / 2;
+        const y1 = r1.top - svgRect.top + r1.height / 2;
+        const x2 = r2.left - svgRect.left + r2.width / 2;
+        const y2 = r2.top - svgRect.top + r2.height / 2;
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('stroke', color);
+        line.setAttribute('class', 'connect-line');
+        svg.appendChild(line);
+    }
+    
+    function redrawConnectLines() {
+        const svg = document.getElementById('connect-svg');
+        if (!svg) return;
+        svg.innerHTML = '';
+        activeConnections.forEach(conn => {
+            const n1 = document.getElementById(conn.n1);
+            const n2 = document.getElementById(conn.n2);
+            if (n1 && n2) {
+                drawLine(n1, n2, conn.color);
+            }
         });
     }
 
